@@ -1,5 +1,6 @@
 package com.example.armeria.application.domain
 
+import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.linecorp.armeria.common.AggregatedHttpRequest
@@ -18,6 +19,7 @@ data class BlogPost(
     val modifiedAt: Long
 ) {
 
+    @JsonCreator
     constructor(id: Long, title: String, content: String) : this(
         id = id,
         title = title,
