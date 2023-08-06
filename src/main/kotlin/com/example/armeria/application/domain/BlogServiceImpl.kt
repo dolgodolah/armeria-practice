@@ -22,6 +22,10 @@ class BlogServiceImpl : BlogService {
     }
 
     override fun getPosts(descending: Boolean): List<BlogPost> {
-        return posts.values.sortedByDescending { it.id }
+        if (descending) {
+            return posts.values.sortedByDescending { it.id }
+        }
+
+        return posts.values.toList()
     }
 }

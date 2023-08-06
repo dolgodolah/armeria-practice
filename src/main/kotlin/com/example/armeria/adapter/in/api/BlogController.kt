@@ -32,8 +32,9 @@ class BlogController(
     }
 
     @Get("/blogs/:id")
-    fun getPost(@Param id: Long): HttpResponse {
-        return HttpResponse.ofJson(blogService.getPost(id))
+    @ProducesJson
+    fun getPost(@Param id: Long): BlogPost {
+        return blogService.getPost(id)
     }
 
     @Get("/blogs")
