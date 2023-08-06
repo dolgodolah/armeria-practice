@@ -4,7 +4,11 @@ import com.example.armeria.application.domain.BlogPost
 import com.example.armeria.application.domain.BlogPostRequestConverter
 import com.example.armeria.application.port.`in`.BlogService
 import com.linecorp.armeria.common.HttpResponse
+import com.linecorp.armeria.server.annotation.Default
+import com.linecorp.armeria.server.annotation.Get
+import com.linecorp.armeria.server.annotation.Param
 import com.linecorp.armeria.server.annotation.Post
+import com.linecorp.armeria.server.annotation.ProducesJson
 import com.linecorp.armeria.server.annotation.RequestConverter
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -25,5 +29,16 @@ class BlogController(
         blogService.createPost(blogPost)
 
         return HttpResponse.ofJson(blogPost)
+    }
+
+    @Get("/blogs/:id")
+    fun getPost(@Param id: Long): HttpResponse {
+        return HttpResponse.ofJson(blogService.getPost(id))
+    }
+
+    @Get("/blogs")
+    @ProducesJson
+    fun getPosts(@Param @Default("true") descending: Boolean): List<BlogPost> {
+        return blogService.getPosts(descending)
     }
 }
