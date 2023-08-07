@@ -29,7 +29,7 @@ class BlogServiceImpl : BlogService {
         return posts.values.toList()
     }
 
-    override fun updateBlogPost(id: Long, blogPost: BlogPost): BlogPost {
+    override fun updatePost(id: Long, blogPost: BlogPost): BlogPost {
         val oldBlogPost = posts[id] ?: throw IllegalArgumentException("not found post")
         val newBlogPost = BlogPost(
             id = id,

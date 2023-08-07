@@ -50,7 +50,7 @@ class BlogController(
     @Put("/blogs/:id")
     fun updatePost(@Param id: Long, @RequestObject blogPost: BlogPost): HttpResponse {
         return try {
-            val updatedBlogPost = blogService.updateBlogPost(id, blogPost)
+            val updatedBlogPost = blogService.updatePost(id, blogPost)
             HttpResponse.ofJson(updatedBlogPost)
         } catch (e: IllegalArgumentException) {
             HttpResponse.of(HttpStatus.NOT_FOUND)
