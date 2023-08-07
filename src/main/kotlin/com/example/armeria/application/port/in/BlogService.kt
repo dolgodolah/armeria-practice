@@ -8,4 +8,5 @@ interface BlogService {
     fun getPost(id: Long): BlogPost
     fun getPosts(descending: Boolean): List<BlogPost>
     fun updatePost(id: Long, blogPost: BlogPost): BlogPost
+    fun deletePost(id: Long): BlogPost
 }

@@ -5,7 +5,9 @@ import com.example.armeria.application.domain.BlogPostRequestConverter
 import com.example.armeria.application.port.`in`.BlogService
 import com.linecorp.armeria.common.HttpResponse
 import com.linecorp.armeria.common.HttpStatus
+import com.linecorp.armeria.server.annotation.Blocking
 import com.linecorp.armeria.server.annotation.Default
+import com.linecorp.armeria.server.annotation.Delete
 import com.linecorp.armeria.server.annotation.Get
 import com.linecorp.armeria.server.annotation.Param
 import com.linecorp.armeria.server.annotation.Post
@@ -55,6 +57,17 @@ class BlogController(
         } catch (e: IllegalArgumentException) {
             HttpResponse.of(HttpStatus.NOT_FOUND)
         }
+    }
 
+    // With real services, accessing and operating on a database takes time. We need to hand over such blocking tasks to blocking task executor so that the EventLoop isn't blocked.
+    @Blocking
+    @Delete("/blogs/:id")
+    fun deletePost(@Param id: Long): HttpResponse {
+        return try {
+            val deleteBlogPost = blogService.deletePost(id)
+            HttpResponse.ofJson(deleteBlogPost)
+        } catch (e: IllegalArgumentException) {
+            HttpResponse.of(HttpStatus.NOT_FOUND)
+        }
     }
 }

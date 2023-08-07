@@ -42,4 +42,8 @@ class BlogServiceImpl : BlogService {
         posts[id] = newBlogPost
         return newBlogPost
     }
+
+    override fun deletePost(id: Long): BlogPost {
+        return posts.remove(id) ?: throw IllegalArgumentException("not found post")
+    }
 }
