@@ -1,6 +1,6 @@
-package com.example.armeria.`rest-api-annotated-service`.application.domain
+package com.example.armeria.restapi.application.domain
 
-import com.example.armeria.`rest-api-annotated-service`.application.port.`in`.BlogService
+import com.example.armeria.restapi.application.port.`in`.BlogService
 import org.springframework.stereotype.Service
 import java.lang.IllegalArgumentException
 import java.util.concurrent.ConcurrentHashMap

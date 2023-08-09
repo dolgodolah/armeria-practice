@@ -1,8 +1,8 @@
-package com.example.armeria.`rest-api-annotated-service`.adapter.`in`.api
+package com.example.armeria.restapi.adapter.`in`.api
 
-import com.example.armeria.`rest-api-annotated-service`.application.domain.BlogPost
-import com.example.armeria.`rest-api-annotated-service`.application.domain.BlogPostRequestConverter
-import com.example.armeria.`rest-api-annotated-service`.application.port.`in`.BlogService
+import com.example.armeria.restapi.application.domain.BlogPost
+import com.example.armeria.restapi.application.domain.BlogPostRequestConverter
+import com.example.armeria.restapi.application.port.`in`.BlogService
 import com.linecorp.armeria.common.HttpResponse
 import com.linecorp.armeria.server.annotation.Blocking
 import com.linecorp.armeria.server.annotation.Default
@@ -60,7 +60,7 @@ class BlogController(
     @Blocking
     @Delete("/blogs/:id")
     @ExceptionHandler(BadRequestExceptionHandler::class)
-    fun deletePost(@Param id: Long): HttpResponse {
+    suspend fun deletePost(@Param id: Long): HttpResponse {
         val deleteBlogPost = blogService.deletePost(id)
         return HttpResponse.ofJson(deleteBlogPost)
     }
