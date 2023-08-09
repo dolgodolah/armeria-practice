@@ -1,4 +1,4 @@
-package com.example.armeria.application.domain
+package com.example.armeria.`rest-api-annotated-service`.application.domain
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.databind.JsonNode

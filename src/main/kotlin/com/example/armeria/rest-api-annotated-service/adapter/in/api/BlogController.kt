@@ -1,8 +1,8 @@
-package com.example.armeria.adapter.`in`.api
+package com.example.armeria.`rest-api-annotated-service`.adapter.`in`.api
 
-import com.example.armeria.application.domain.BlogPost
-import com.example.armeria.application.domain.BlogPostRequestConverter
-import com.example.armeria.application.port.`in`.BlogService
+import com.example.armeria.`rest-api-annotated-service`.application.domain.BlogPost
+import com.example.armeria.`rest-api-annotated-service`.application.domain.BlogPostRequestConverter
+import com.example.armeria.`rest-api-annotated-service`.application.port.`in`.BlogService
 import com.linecorp.armeria.common.HttpResponse
 import com.linecorp.armeria.server.annotation.Blocking
 import com.linecorp.armeria.server.annotation.Default

@@ -1,6 +1,6 @@
-package com.example.armeria.application.port.`in`
+package com.example.armeria.`rest-api-annotated-service`.application.port.`in`
 
-import com.example.armeria.application.domain.BlogPost
+import com.example.armeria.`rest-api-annotated-service`.application.domain.BlogPost
 
 interface BlogService {
 
