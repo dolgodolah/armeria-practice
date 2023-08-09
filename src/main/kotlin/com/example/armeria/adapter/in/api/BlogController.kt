@@ -4,10 +4,10 @@ import com.example.armeria.application.domain.BlogPost
 import com.example.armeria.application.domain.BlogPostRequestConverter
 import com.example.armeria.application.port.`in`.BlogService
 import com.linecorp.armeria.common.HttpResponse
-import com.linecorp.armeria.common.HttpStatus
 import com.linecorp.armeria.server.annotation.Blocking
 import com.linecorp.armeria.server.annotation.Default
 import com.linecorp.armeria.server.annotation.Delete
+import com.linecorp.armeria.server.annotation.ExceptionHandler
 import com.linecorp.armeria.server.annotation.Get
 import com.linecorp.armeria.server.annotation.Param
 import com.linecorp.armeria.server.annotation.Post
@@ -18,7 +18,6 @@ import com.linecorp.armeria.server.annotation.RequestObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Controller
-import java.lang.IllegalArgumentException
 
 @Controller
 class BlogController(
@@ -39,6 +38,7 @@ class BlogController(
 
     @Get("/blogs/:id")
     @ProducesJson
+    @ExceptionHandler(BadRequestExceptionHandler::class)
     fun getPost(@Param id: Long): BlogPost {
         return blogService.getPost(id)
     }
@@ -50,24 +50,18 @@ class BlogController(
     }
 
     @Put("/blogs/:id")
+    @ExceptionHandler(BadRequestExceptionHandler::class)
     fun updatePost(@Param id: Long, @RequestObject blogPost: BlogPost): HttpResponse {
-        return try {
-            val updatedBlogPost = blogService.updatePost(id, blogPost)
-            HttpResponse.ofJson(updatedBlogPost)
-        } catch (e: IllegalArgumentException) {
-            HttpResponse.of(HttpStatus.NOT_FOUND)
-        }
+        val updatedBlogPost = blogService.updatePost(id, blogPost)
+        return HttpResponse.ofJson(updatedBlogPost)
     }
 
     // With real services, accessing and operating on a database takes time. We need to hand over such blocking tasks to blocking task executor so that the EventLoop isn't blocked.
     @Blocking
     @Delete("/blogs/:id")
+    @ExceptionHandler(BadRequestExceptionHandler::class)
     fun deletePost(@Param id: Long): HttpResponse {
-        return try {
-            val deleteBlogPost = blogService.deletePost(id)
-            HttpResponse.ofJson(deleteBlogPost)
-        } catch (e: IllegalArgumentException) {
-            HttpResponse.of(HttpStatus.NOT_FOUND)
-        }
+        val deleteBlogPost = blogService.deletePost(id)
+        return HttpResponse.ofJson(deleteBlogPost)
     }
 }
