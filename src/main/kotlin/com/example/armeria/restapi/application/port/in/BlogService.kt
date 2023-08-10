@@ -4,9 +4,9 @@ import com.example.armeria.restapi.application.domain.BlogPost
 
 interface BlogService {
 
-    fun createPost(blogPost: BlogPost): Long
-    fun getPost(id: Long): BlogPost
-    fun getPosts(descending: Boolean): List<BlogPost>
-    fun updatePost(id: Long, blogPost: BlogPost): BlogPost
-    fun deletePost(id: Long): BlogPost
+    suspend fun createPost(blogPost: BlogPost): Long
+    suspend fun getPost(id: Long): BlogPost
+    suspend fun getPosts(descending: Boolean): List<BlogPost>
+    suspend fun updatePost(id: Long, blogPost: BlogPost): BlogPost
+    suspend fun deletePost(id: Long): BlogPost
 }

@@ -30,7 +30,7 @@ class BlogController(
 
     @Post("/blogs")
     @RequestConverter(BlogPostRequestConverter::class)
-    fun createPost(blogPost: BlogPost): HttpResponse {
+    suspend fun createPost(blogPost: BlogPost): HttpResponse {
         blogService.createPost(blogPost)
 
         return HttpResponse.ofJson(blogPost)
@@ -39,19 +39,19 @@ class BlogController(
     @Get("/blogs/:id")
     @ProducesJson
     @ExceptionHandler(BadRequestExceptionHandler::class)
-    fun getPost(@Param id: Long): BlogPost {
+    suspend fun getPost(@Param id: Long): BlogPost {
         return blogService.getPost(id)
     }
 
     @Get("/blogs")
     @ProducesJson
-    fun getPosts(@Param @Default("true") descending: Boolean): List<BlogPost> {
+    suspend fun getPosts(@Param @Default("true") descending: Boolean): List<BlogPost> {
         return blogService.getPosts(descending)
     }
 
     @Put("/blogs/:id")
     @ExceptionHandler(BadRequestExceptionHandler::class)
-    fun updatePost(@Param id: Long, @RequestObject blogPost: BlogPost): HttpResponse {
+    suspend fun updatePost(@Param id: Long, @RequestObject blogPost: BlogPost): HttpResponse {
         val updatedBlogPost = blogService.updatePost(id, blogPost)
         return HttpResponse.ofJson(updatedBlogPost)
     }

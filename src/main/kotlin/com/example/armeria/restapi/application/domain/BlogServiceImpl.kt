@@ -1,36 +1,35 @@
 package com.example.armeria.restapi.application.domain
 
+import com.example.armeria.restapi.adapter.out.persistence.BlogPostR2dbcRepository
 import com.example.armeria.restapi.application.port.`in`.BlogService
+import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Service
 import java.lang.IllegalArgumentException
 import java.util.concurrent.ConcurrentHashMap
 
 @Service
-class BlogServiceImpl : BlogService {
+class BlogServiceImpl(
+    private val blogPostRepository: BlogPostR2dbcRepository
+) : BlogService {
 
-    companion object {
-        private val posts = ConcurrentHashMap<Long, BlogPost>()
+    override suspend fun createPost(blogPost: BlogPost): Long {
+        return blogPostRepository.save(blogPost).id
     }
 
-    override fun createPost(blogPost: BlogPost): Long {
-        posts[blogPost.id] = blogPost
-        return blogPost.id
+    override suspend fun getPost(id: Long): BlogPost {
+        return  blogPostRepository.findById(id) ?: throw IllegalArgumentException("not found post")
     }
 
-    override fun getPost(id: Long): BlogPost {
-        return posts[id] ?: throw IllegalArgumentException("not found post")
-    }
-
-    override fun getPosts(descending: Boolean): List<BlogPost> {
+    override suspend fun getPosts(descending: Boolean): List<BlogPost> {
         if (descending) {
-            return posts.values.sortedByDescending { it.id }
+            return blogPostRepository.findAll().toList().sortedByDescending { it.id }
         }
 
-        return posts.values.toList()
+        return blogPostRepository.findAll().toList()
     }
 
-    override fun updatePost(id: Long, blogPost: BlogPost): BlogPost {
-        val oldBlogPost = posts[id] ?: throw IllegalArgumentException("not found post")
+    override suspend fun updatePost(id: Long, blogPost: BlogPost): BlogPost {
+        val oldBlogPost = blogPostRepository.findById(id) ?: throw IllegalArgumentException("not found post")
         val newBlogPost = BlogPost(
             id = id,
             title = blogPost.title,
@@ -39,11 +38,12 @@ class BlogServiceImpl : BlogService {
             modifiedAt = blogPost.createdAt
         )
 
-        posts[id] = newBlogPost
-        return newBlogPost
+        return blogPostRepository.save(newBlogPost)
     }
 
-    override fun deletePost(id: Long): BlogPost {
-        return posts.remove(id) ?: throw IllegalArgumentException("not found post")
+    override suspend fun deletePost(id: Long): BlogPost {
+        val blogPost = blogPostRepository.findById(id) ?: throw IllegalArgumentException("not found post")
+        blogPostRepository.delete(blogPost)
+        return blogPost
     }
 }
