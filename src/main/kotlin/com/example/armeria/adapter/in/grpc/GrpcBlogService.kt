@@ -48,6 +48,20 @@ class GrpcBlogService : BlogServiceGrpc.BlogServiceImplBase() {
         responseObserver.onCompleted()
     }
 
+    override fun updateBlogPost(request: UpdateBlogPostRequest, responseObserver: StreamObserver<BlogPost>) {
+        val oldBlogPost = posts[request.id] ?: return onError(responseObserver)
+
+        val updateBlogPost = oldBlogPost.toBuilder()
+            .setTitle(request.title)
+            .setContent(request.content)
+            .setModifiedAt(Instant.now().toEpochMilli())
+            .build()
+
+        posts[request.id] = updateBlogPost
+        responseObserver.onNext(updateBlogPost)
+        responseObserver.onCompleted()
+    }
+
     private fun onError(responseObserver: StreamObserver<BlogPost>) {
         responseObserver.onError(
             Status.NOT_FOUND.withDescription("not found post").asRuntimeException()

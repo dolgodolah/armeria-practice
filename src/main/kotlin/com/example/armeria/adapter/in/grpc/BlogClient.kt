@@ -6,6 +6,7 @@ import com.example.armeria.grpc.BlogServiceGrpc.BlogServiceBlockingStub
 import com.example.armeria.grpc.CreateBlogPostRequest
 import com.example.armeria.grpc.GetBlogPostRequest
 import com.example.armeria.grpc.ListBlogPostsRequest
+import com.example.armeria.grpc.UpdateBlogPostRequest
 import com.linecorp.armeria.client.grpc.GrpcClients
 import org.slf4j.LoggerFactory
 import org.springframework.boot.runApplication
@@ -46,7 +47,17 @@ class BlogClient {
         response.blogsList.forEach { blogPost ->
             logger.info("${requestCount}. [Get response] Title: ${blogPost.title}, Content: ${blogPost.content}")
         }
+    }
 
+    fun updateBlogPost(id: Long, title: String, content: String) {
+        val request = UpdateBlogPostRequest.newBuilder()
+            .setId(id)
+            .setTitle(title)
+            .setContent(content)
+            .build()
+
+        val response = client.updateBlogPost(request)
+        logger.info("${requestCounter.incrementAndGet()}. [Update response] Title: ${response.title}, Content: ${response.content}")
     }
 }
 
@@ -62,4 +73,8 @@ fun main(args: Array<String>) {
     blogClient.getBlogPost(0)
 
     blogClient.listBlogPosts()
+
+    // UPDATE
+    blogClient.updateBlogPost(0, "Updated blog post", "Updated blog content")
+    blogClient.getBlogPost(0)
 }
