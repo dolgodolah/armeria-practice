@@ -9,6 +9,7 @@ import com.example.armeria.grpc.ListBlogPostsRequest
 import com.linecorp.armeria.client.grpc.GrpcClients
 import org.slf4j.LoggerFactory
 import org.springframework.boot.runApplication
+import java.util.concurrent.atomic.AtomicInteger
 
 
 class BlogClient {
@@ -16,6 +17,7 @@ class BlogClient {
     companion object {
         private val logger = LoggerFactory.getLogger(BlogClient::class.java)
         private val client = GrpcClients.newClient("http://127.0.0.1:8080/", BlogServiceBlockingStub::class.java)
+        private val requestCounter = AtomicInteger()
     }
 
     fun createBlogPost(title: String, content: String) {
@@ -25,23 +27,24 @@ class BlogClient {
             .build()
 
         val response = client.createBlogPost(request)
-        logger.info("[Create response] Title: ${response.title}, Content: ${response.content}")
+        logger.info("${requestCounter.incrementAndGet()}. [Create response] Title: ${response.title}, Content: ${response.content}")
     }
 
     fun getBlogPost(id: Long) {
         val request = GetBlogPostRequest.newBuilder().setId(id).build()
         val response = client.getBlogPost(request)
-        logger.info("[Get response] Title: ${response.title}, Content: ${response.content}")
+        logger.info("${requestCounter.incrementAndGet()}. [Get response] Title: ${response.title}, Content: ${response.content}")
     }
 
     fun listBlogPosts(descending: Boolean = true) {
+        val requestCount = requestCounter.incrementAndGet()
         val request = ListBlogPostsRequest.newBuilder()
             .setDescending(descending)
             .build()
 
         val response = client.listBlogPosts(request)
         response.blogsList.forEach { blogPost ->
-            logger.info("[Get response] Title: ${blogPost.title}, Content: ${blogPost.content}")
+            logger.info("${requestCount}. [Get response] Title: ${blogPost.title}, Content: ${blogPost.content}")
         }
 
     }
@@ -50,8 +53,13 @@ class BlogClient {
 fun main(args: Array<String>) {
 //    runApplication<ArmeriaApplication>(*args)
     val blogClient = BlogClient()
+
+    // CREATE
     blogClient.createBlogPost("First blog post", "ya ho~")
     blogClient.createBlogPost("Another blog post", "Creating a post via createBlogPost().")
+
+    // READ
     blogClient.getBlogPost(0)
+
     blogClient.listBlogPosts()
 }
