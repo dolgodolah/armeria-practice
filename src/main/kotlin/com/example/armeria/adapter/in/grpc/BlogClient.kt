@@ -12,17 +12,17 @@ class BlogClient {
 
     companion object {
         private val logger = LoggerFactory.getLogger(BlogClient::class.java)
+        private val client = GrpcClients.newClient("http://127.0.0.1:8080/", BlogServiceBlockingStub::class.java)
     }
 
     fun createBlogPost(title: String, content: String) {
-        val client = GrpcClients.newClient("http://127.0.0.1:8080/", BlogServiceBlockingStub::class.java)
         val request = CreateBlogPostRequest.newBuilder()
-            .setTitle("My first blog")
-            .setContent("Yay")
+            .setTitle(title)
+            .setContent(content)
             .build()
 
         val response = client.createBlogPost(request)
-        logger.info("[Create response] Title: ${response.title} Content: ${response.content}")
+        logger.info("[Create response] Title: ${response.title}, Content: ${response.content}")
     }
 }
 
