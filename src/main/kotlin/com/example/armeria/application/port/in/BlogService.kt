@@ -1,6 +1,6 @@
-package com.example.armeria.restapi.application.port.`in`
+package com.example.armeria.application.port.`in`
 
-import com.example.armeria.restapi.application.domain.BlogPost
+import com.example.armeria.application.domain.BlogPost
 
 interface BlogService {
 

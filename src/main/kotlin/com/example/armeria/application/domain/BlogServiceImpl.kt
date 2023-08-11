@@ -1,11 +1,10 @@
-package com.example.armeria.restapi.application.domain
+package com.example.armeria.application.domain
 
-import com.example.armeria.restapi.adapter.out.persistence.BlogPostR2dbcRepository
-import com.example.armeria.restapi.application.port.`in`.BlogService
+import com.example.armeria.adapter.out.persistence.BlogPostR2dbcRepository
+import com.example.armeria.application.port.`in`.BlogService
 import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Service
 import java.lang.IllegalArgumentException
-import java.util.concurrent.ConcurrentHashMap
 
 @Service
 class BlogServiceImpl(

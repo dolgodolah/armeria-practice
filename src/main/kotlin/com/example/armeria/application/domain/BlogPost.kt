@@ -1,4 +1,4 @@
-package com.example.armeria.restapi.application.domain
+package com.example.armeria.application.domain
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.databind.JsonNode
@@ -11,7 +11,6 @@ import org.springframework.data.relational.core.mapping.Table
 import java.lang.IllegalArgumentException
 import java.lang.reflect.ParameterizedType
 import java.time.LocalDateTime
-import java.util.concurrent.atomic.AtomicLong
 
 @Table // `CoroutineCrudRepository<BlogPost, ID>`가 빈으로 등록되려면 테이블 매핑이 되어야 함.
 data class BlogPost(

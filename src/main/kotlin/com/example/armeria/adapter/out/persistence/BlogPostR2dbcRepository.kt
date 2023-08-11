@@ -1,6 +1,6 @@
-package com.example.armeria.restapi.adapter.out.persistence
+package com.example.armeria.adapter.out.persistence
 
-import com.example.armeria.restapi.application.domain.BlogPost
+import com.example.armeria.application.domain.BlogPost
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 import org.springframework.stereotype.Repository
 

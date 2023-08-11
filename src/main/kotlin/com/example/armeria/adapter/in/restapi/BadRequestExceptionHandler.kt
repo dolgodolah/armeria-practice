@@ -1,4 +1,4 @@
-package com.example.armeria.restapi.adapter.`in`.api
+package com.example.armeria.adapter.`in`.restapi
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.linecorp.armeria.common.HttpRequest
