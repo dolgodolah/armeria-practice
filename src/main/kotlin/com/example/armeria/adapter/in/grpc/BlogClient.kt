@@ -1,8 +1,11 @@
 package com.example.armeria.adapter.`in`.grpc
 
 import com.example.armeria.ArmeriaApplication
+import com.example.armeria.grpc.BlogPost
 import com.example.armeria.grpc.BlogServiceGrpc.BlogServiceBlockingStub
 import com.example.armeria.grpc.CreateBlogPostRequest
+import com.example.armeria.grpc.GetBlogPostRequest
+import com.example.armeria.grpc.ListBlogPostsRequest
 import com.linecorp.armeria.client.grpc.GrpcClients
 import org.slf4j.LoggerFactory
 import org.springframework.boot.runApplication
@@ -24,10 +27,31 @@ class BlogClient {
         val response = client.createBlogPost(request)
         logger.info("[Create response] Title: ${response.title}, Content: ${response.content}")
     }
+
+    fun getBlogPost(id: Long) {
+        val request = GetBlogPostRequest.newBuilder().setId(id).build()
+        val response = client.getBlogPost(request)
+        logger.info("[Get response] Title: ${response.title}, Content: ${response.content}")
+    }
+
+    fun listBlogPosts(descending: Boolean = true) {
+        val request = ListBlogPostsRequest.newBuilder()
+            .setDescending(descending)
+            .build()
+
+        val response = client.listBlogPosts(request)
+        response.blogsList.forEach { blogPost ->
+            logger.info("[Get response] Title: ${blogPost.title}, Content: ${blogPost.content}")
+        }
+
+    }
 }
 
 fun main(args: Array<String>) {
 //    runApplication<ArmeriaApplication>(*args)
     val blogClient = BlogClient()
+    blogClient.createBlogPost("First blog post", "ya ho~")
     blogClient.createBlogPost("Another blog post", "Creating a post via createBlogPost().")
+    blogClient.getBlogPost(0)
+    blogClient.listBlogPosts()
 }
