@@ -13,13 +13,19 @@ class ArmeriaConfiguration {
 
     @Bean
     fun armeriaServerConfigurator(blogController: BlogController): ArmeriaServerConfigurator {
-        val grpcService = GrpcService.builder().addService(GrpcBlogService()).build()
         return ArmeriaServerConfigurator { serverBuilder ->
             serverBuilder.http(8080)
             serverBuilder.annotatedService(blogController)
-            serverBuilder.service(grpcService)
+            serverBuilder.service(grpcService())
             serverBuilder.serviceUnder("/docs", docService())
         }
+    }
+
+    private fun grpcService(): GrpcService {
+        return GrpcService.builder()
+            .addService(GrpcBlogService())
+            .useBlockingTaskExecutor(true) // By default, service methods are executed on the event loop and are expected to be implemented asynchronously. To implement blocking logic, call useBlockingTaskExecutor(true).
+            .build()
     }
 
     private fun docService(): DocService {

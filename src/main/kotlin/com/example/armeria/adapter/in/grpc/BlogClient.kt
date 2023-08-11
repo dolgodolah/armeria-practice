@@ -4,6 +4,7 @@ import com.example.armeria.ArmeriaApplication
 import com.example.armeria.grpc.BlogPost
 import com.example.armeria.grpc.BlogServiceGrpc.BlogServiceBlockingStub
 import com.example.armeria.grpc.CreateBlogPostRequest
+import com.example.armeria.grpc.DeleteBlogPostRequest
 import com.example.armeria.grpc.GetBlogPostRequest
 import com.example.armeria.grpc.ListBlogPostsRequest
 import com.example.armeria.grpc.UpdateBlogPostRequest
@@ -59,6 +60,15 @@ class BlogClient {
         val response = client.updateBlogPost(request)
         logger.info("${requestCounter.incrementAndGet()}. [Update response] Title: ${response.title}, Content: ${response.content}")
     }
+
+    fun deleteBlogPost(id: Long) {
+        val request = DeleteBlogPostRequest.newBuilder()
+            .setId(id)
+            .build()
+
+        val response = client.deleteBlogPost(request)
+        logger.info("${requestCounter.incrementAndGet()}. [Delete response] delete success!")
+    }
 }
 
 fun main(args: Array<String>) {
@@ -77,4 +87,8 @@ fun main(args: Array<String>) {
     // UPDATE
     blogClient.updateBlogPost(0, "Updated blog post", "Updated blog content")
     blogClient.getBlogPost(0)
+
+    // DELETE
+    blogClient.deleteBlogPost(0)
+    blogClient.listBlogPosts()
 }

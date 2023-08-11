@@ -1,6 +1,7 @@
 package com.example.armeria.adapter.`in`.grpc
 
 import com.example.armeria.grpc.*
+import com.google.protobuf.Empty
 import io.grpc.Status
 import io.grpc.stub.StreamObserver
 import java.time.Instant
@@ -62,7 +63,17 @@ class GrpcBlogService : BlogServiceGrpc.BlogServiceImplBase() {
         responseObserver.onCompleted()
     }
 
-    private fun onError(responseObserver: StreamObserver<BlogPost>) {
+    override fun deleteBlogPost(request: DeleteBlogPostRequest, responseObserver: StreamObserver<Empty>) {
+        // Simulate a blocking API call.
+        Thread.sleep(100)
+
+        posts.remove(request.id) ?: return onError(responseObserver)
+
+        responseObserver.onNext(Empty.getDefaultInstance())
+        responseObserver.onCompleted()
+    }
+
+    private fun<T> onError(responseObserver: StreamObserver<T>) {
         responseObserver.onError(
             Status.NOT_FOUND.withDescription("not found post").asRuntimeException()
         )
