@@ -9,6 +9,8 @@ import com.example.armeria.grpc.GetBlogPostRequest
 import com.example.armeria.grpc.ListBlogPostsRequest
 import com.example.armeria.grpc.UpdateBlogPostRequest
 import com.linecorp.armeria.client.grpc.GrpcClients
+import io.grpc.Status
+import io.grpc.StatusRuntimeException
 import org.slf4j.LoggerFactory
 import org.springframework.boot.runApplication
 import java.util.concurrent.atomic.AtomicInteger
@@ -33,9 +35,14 @@ class BlogClient {
     }
 
     fun getBlogPost(id: Long) {
-        val request = GetBlogPostRequest.newBuilder().setId(id).build()
-        val response = client.getBlogPost(request)
-        logger.info("${requestCounter.incrementAndGet()}. [Get response] Title: ${response.title}, Content: ${response.content}")
+        try {
+            val request = GetBlogPostRequest.newBuilder().setId(id).build()
+            val response = client.getBlogPost(request)
+            logger.info("${requestCounter.incrementAndGet()}. [Get response] Title: ${response.title}, Content: ${response.content}")
+        } catch (e: StatusRuntimeException) {
+            handleException(e, id)
+        }
+
     }
 
     fun listBlogPosts(descending: Boolean = true) {
@@ -51,23 +58,40 @@ class BlogClient {
     }
 
     fun updateBlogPost(id: Long, title: String, content: String) {
-        val request = UpdateBlogPostRequest.newBuilder()
-            .setId(id)
-            .setTitle(title)
-            .setContent(content)
-            .build()
+        try {
+            val request = UpdateBlogPostRequest.newBuilder()
+                .setId(id)
+                .setTitle(title)
+                .setContent(content)
+                .build()
 
-        val response = client.updateBlogPost(request)
-        logger.info("${requestCounter.incrementAndGet()}. [Update response] Title: ${response.title}, Content: ${response.content}")
+            val response = client.updateBlogPost(request)
+            logger.info("${requestCounter.incrementAndGet()}. [Update response] Title: ${response.title}, Content: ${response.content}")
+        } catch (e: StatusRuntimeException) {
+            handleException(e, id)
+        }
+
     }
 
     fun deleteBlogPost(id: Long) {
-        val request = DeleteBlogPostRequest.newBuilder()
-            .setId(id)
-            .build()
+        try {
+            val request = DeleteBlogPostRequest.newBuilder()
+                .setId(id)
+                .build()
 
-        val response = client.deleteBlogPost(request)
-        logger.info("${requestCounter.incrementAndGet()}. [Delete response] delete success!")
+            client.deleteBlogPost(request)
+            logger.info("${requestCounter.incrementAndGet()}. [Delete response] delete success!")
+        } catch (e: StatusRuntimeException) {
+            handleException(e, id)
+        }
+    }
+
+    private fun handleException(exception: StatusRuntimeException, id: Long) {
+        if (exception.status.code == Status.NOT_FOUND.code) {
+            logger.info("${requestCounter.incrementAndGet()}. [Error response] Not Found Post, id = $id", exception)
+        } else {
+            logger.info("${requestCounter.incrementAndGet()}. [Error response] Internal Server Error", exception)
+        }
     }
 }
 
@@ -81,6 +105,7 @@ fun main(args: Array<String>) {
 
     // READ
     blogClient.getBlogPost(0)
+    blogClient.getBlogPost(99999999) // Not Found
 
     blogClient.listBlogPosts()
 

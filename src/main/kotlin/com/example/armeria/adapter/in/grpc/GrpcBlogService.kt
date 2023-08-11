@@ -32,7 +32,7 @@ class GrpcBlogService : BlogServiceGrpc.BlogServiceImplBase() {
     }
 
     override fun getBlogPost(request: GetBlogPostRequest, responseObserver: StreamObserver<BlogPost>) {
-        val blogPost = posts[request.id] ?: return onError(responseObserver)
+        val blogPost = posts[request.id] ?: throw NotFoundException("not found post")
 
         responseObserver.onNext(blogPost)
         responseObserver.onCompleted()
@@ -50,7 +50,7 @@ class GrpcBlogService : BlogServiceGrpc.BlogServiceImplBase() {
     }
 
     override fun updateBlogPost(request: UpdateBlogPostRequest, responseObserver: StreamObserver<BlogPost>) {
-        val oldBlogPost = posts[request.id] ?: return onError(responseObserver)
+        val oldBlogPost = posts[request.id] ?: throw NotFoundException("not found post")
 
         val updateBlogPost = oldBlogPost.toBuilder()
             .setTitle(request.title)
@@ -67,15 +67,9 @@ class GrpcBlogService : BlogServiceGrpc.BlogServiceImplBase() {
         // Simulate a blocking API call.
         Thread.sleep(100)
 
-        posts.remove(request.id) ?: return onError(responseObserver)
+        posts.remove(request.id) ?: throw NotFoundException("not found post")
 
         responseObserver.onNext(Empty.getDefaultInstance())
         responseObserver.onCompleted()
-    }
-
-    private fun<T> onError(responseObserver: StreamObserver<T>) {
-        responseObserver.onError(
-            Status.NOT_FOUND.withDescription("not found post").asRuntimeException()
-        )
     }
 }
