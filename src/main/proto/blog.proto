@@ -7,13 +7,13 @@ option java_multiple_files = true;
 import "google/protobuf/empty.proto";
 
 service BlogService {
-  rpc CreateBlogPost (CreateBlogPostRequest) returns (BlogPost) {}
-  rpc GetBlogPost (GetBlogPostRequest) returns (BlogPost) {}
+  rpc CreateBlogPost (CreateBlogPostRequest) returns (GBlogPost) {}
+  rpc GetBlogPost (GetBlogPostRequest) returns (GBlogPost) {}
   rpc ListBlogPosts (ListBlogPostsRequest) returns (ListBlogPostsResponse) {}
-  rpc UpdateBlogPost (UpdateBlogPostRequest) returns (BlogPost) {}
+  rpc UpdateBlogPost (UpdateBlogPostRequest) returns (GBlogPost) {}
   rpc DeleteBlogPost (DeleteBlogPostRequest) returns (google.protobuf.Empty) {}
 }
-message BlogPost {
+message GBlogPost {
   int64 id = 1;
   string title = 2;
   string content = 3;
@@ -45,5 +45,5 @@ message DeleteBlogPostRequest {
 }
 
 message ListBlogPostsResponse {
-  repeated BlogPost blogs = 1;
+  repeated GBlogPost blogs = 1;
 }
