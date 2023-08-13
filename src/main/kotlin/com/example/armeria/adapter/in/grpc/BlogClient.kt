@@ -1,7 +1,5 @@
 package com.example.armeria.adapter.`in`.grpc
 
-import com.example.armeria.ArmeriaApplication
-import com.example.armeria.grpc.BlogPost
 import com.example.armeria.grpc.BlogServiceGrpc.BlogServiceBlockingStub
 import com.example.armeria.grpc.CreateBlogPostRequest
 import com.example.armeria.grpc.DeleteBlogPostRequest

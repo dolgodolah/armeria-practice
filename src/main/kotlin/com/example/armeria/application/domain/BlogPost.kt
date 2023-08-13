@@ -1,5 +1,8 @@
 package com.example.armeria.application.domain
 
+import com.example.armeria.application.util.GrpcUtils
+import com.example.armeria.grpc.GBlogPost
+import com.example.armeria.grpc.ListBlogPostsResponse
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -29,6 +32,36 @@ data class BlogPost(
         createdAt = LocalDateTime.now(),
         modifiedAt = LocalDateTime.now()
     )
+
+    companion object {
+        fun of(gBlogPost: GBlogPost): BlogPost {
+            return BlogPost(
+                id = gBlogPost.id,
+                title = gBlogPost.title,
+                content = gBlogPost.content,
+                createdAt = GrpcUtils.toLocalDateTime(gBlogPost.createdAt),
+                modifiedAt = GrpcUtils.toLocalDateTime(gBlogPost.modifiedAt)
+            )
+        }
+    }
+
+    fun toGrpc(): GBlogPost {
+        return GBlogPost.newBuilder()
+            .setId(this.id)
+            .setTitle(this.title)
+            .setContent(this.content)
+            .setCreatedAt(GrpcUtils.toMilliseconds(this.createdAt))
+            .setModifiedAt(GrpcUtils.toMilliseconds(this.modifiedAt))
+            .build()
+    }
+}
+
+fun List<BlogPost>.toGrpc(): ListBlogPostsResponse {
+    val blogPosts = this.map { it.toGrpc() }.toList()
+
+    return ListBlogPostsResponse.newBuilder()
+        .addAllBlogs(blogPosts)
+        .build()
 }
 
 class BlogPostRequestConverter : RequestConverterFunction {

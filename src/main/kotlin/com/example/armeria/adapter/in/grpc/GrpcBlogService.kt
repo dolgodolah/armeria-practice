@@ -1,75 +1,69 @@
 package com.example.armeria.adapter.`in`.grpc
 
+import com.example.armeria.adapter.out.persistence.BlogPostR2dbcRepository
+import com.example.armeria.application.domain.BlogPost
+import com.example.armeria.application.domain.toGrpc
 import com.example.armeria.grpc.*
 import com.google.protobuf.Empty
-import io.grpc.Status
-import io.grpc.stub.StreamObserver
+import kotlinx.coroutines.flow.toList
+import org.springframework.stereotype.Service
 import java.time.Instant
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.atomic.AtomicLong
 
-class GrpcBlogService : BlogServiceGrpc.BlogServiceImplBase() {
+@Service
+class GrpcBlogService(
+    private val blogPostRepository: BlogPostR2dbcRepository
+) : BlogServiceGrpcKt.BlogServiceCoroutineImplBase() {
 
-    companion object {
-        private val idGenerator = AtomicLong()
-        private val posts = ConcurrentHashMap<Long, BlogPost>()
-    }
-
-    override fun createBlogPost(request: CreateBlogPostRequest, responseObserver: StreamObserver<BlogPost>) {
-        val id = idGenerator.getAndIncrement()
+    override suspend fun createBlogPost(request: CreateBlogPostRequest): GBlogPost {
         val now = Instant.now()
-        val updated = BlogPost.newBuilder()
-            .setId(id)
+        val gBlogPost = GBlogPost.newBuilder()
             .setTitle(request.title)
             .setContent(request.content)
             .setModifiedAt(now.toEpochMilli())
             .setCreatedAt(now.toEpochMilli())
             .build()
 
-        posts[id] = updated
-        responseObserver.onNext(updated)
-        responseObserver.onCompleted()
+        blogPostRepository.save(BlogPost.of(gBlogPost))
+        return gBlogPost
     }
 
-    override fun getBlogPost(request: GetBlogPostRequest, responseObserver: StreamObserver<BlogPost>) {
-        val blogPost = posts[request.id] ?: throw NotFoundException("not found post")
-
-        responseObserver.onNext(blogPost)
-        responseObserver.onCompleted()
+    override suspend fun getBlogPost(request: GetBlogPostRequest): GBlogPost {
+        return blogPostRepository.findById(request.id)?.let {
+            it.toGrpc()
+        } ?: throw NotFoundException("not found post")
     }
 
-    override fun listBlogPosts(request: ListBlogPostsRequest, responseObserver: StreamObserver<ListBlogPostsResponse>) {
+    override suspend fun listBlogPosts(request: ListBlogPostsRequest): ListBlogPostsResponse {
         val blogPosts = if (request.descending) {
-            posts.values.sortedByDescending { it.id }
+            blogPostRepository.findAll().toList().sortedByDescending { it.id }
         } else {
-            posts.values
+            blogPostRepository.findAll().toList()
         }
 
-        responseObserver.onNext(ListBlogPostsResponse.newBuilder().addAllBlogs(blogPosts).build())
-        responseObserver.onCompleted()
+        return blogPosts.toGrpc()
     }
 
-    override fun updateBlogPost(request: UpdateBlogPostRequest, responseObserver: StreamObserver<BlogPost>) {
-        val oldBlogPost = posts[request.id] ?: throw NotFoundException("not found post")
+    override suspend fun updateBlogPost(request: UpdateBlogPostRequest): GBlogPost {
+        val oldBlogPost = blogPostRepository.findById(request.id)?.let {
+            it.toGrpc()
+        } ?: throw NotFoundException("not found post")
 
-        val updateBlogPost = oldBlogPost.toBuilder()
+        val updateBlogPost = GBlogPost.newBuilder(oldBlogPost)
             .setTitle(request.title)
             .setContent(request.content)
             .setModifiedAt(Instant.now().toEpochMilli())
             .build()
 
-        posts[request.id] = updateBlogPost
-        responseObserver.onNext(updateBlogPost)
-        responseObserver.onCompleted()
+        blogPostRepository.save(BlogPost.of(updateBlogPost))
+
+        return updateBlogPost
     }
 
-    override fun deleteBlogPost(request: DeleteBlogPostRequest, responseObserver: StreamObserver<Empty>) {
-        // Simulate a blocking API call.
-        Thread.sleep(100)
+    override suspend fun deleteBlogPost(request: DeleteBlogPostRequest): Empty {
+        val blogPost = blogPostRepository.findById(request.id) ?: throw NotFoundException("not found post")
 
-        posts.remove(request.id) ?: throw NotFoundException("not found post")
+        blogPostRepository.delete(blogPost)
 
-        responseObserver.onNext(Empty.getDefaultInstance())
-        responseObserver.onCompleted()
+        return Empty.getDefaultInstance()
     }
 }
