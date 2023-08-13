@@ -34,21 +34,27 @@ protobuf {
 			// Download from the repository.
 			artifact = "io.grpc:protoc-gen-grpc-java:1.56.0"
 		}
+		id("grpckt") {
+			artifact = "io.grpc:protoc-gen-grpc-kotlin:1.0.0:jdk7@jar"
+		}
 	}
 	generateProtoTasks {
 		ofSourceSet("main").forEach {
 			it.plugins {
 				id("grpc") {}
+				id("grpckt")
 			}
 		}
 	}
 }
 
 dependencies {
+	// armeria
 	listOf(
 		"armeria-spring-boot3-webflux-starter",
 		"armeria-kotlin",
-		"armeria-grpc"
+		"armeria-grpc",
+		"armeria-grpc-kotlin"
 	).forEach {
 		implementation("com.linecorp.armeria:${it}:1.24.3")
 	}
@@ -57,10 +63,13 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
 	implementation("io.asyncer:r2dbc-mysql:1.0.2")
 
+	// grpc
+	implementation("io.grpc:grpc-kotlin-stub:1.0.0")
+	implementation("javax.annotation:javax.annotation-api:1.3.2")
+
 	implementation("org.springframework.boot:spring-boot-starter-data-redis-reactive")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
-	implementation("javax.annotation:javax.annotation-api:1.3.2")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
