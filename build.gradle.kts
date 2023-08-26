@@ -82,6 +82,7 @@ tasks.withType<KotlinCompile> {
 		freeCompilerArgs += "-Xjsr305=strict"
 		jvmTarget = "17"
 	}
+	dependsOn("generateProto")
 }
 
 tasks.withType<Test> {
