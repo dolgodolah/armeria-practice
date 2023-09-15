@@ -1,12 +1,9 @@
 package com.example.armeria.adapter.`in`.grpc
 
+import com.example.armeria.grpc.*
 import com.example.armeria.grpc.BlogServiceGrpc.BlogServiceBlockingStub
-import com.example.armeria.grpc.CreateBlogPostRequest
-import com.example.armeria.grpc.DeleteBlogPostRequest
-import com.example.armeria.grpc.GetBlogPostRequest
-import com.example.armeria.grpc.ListBlogPostsRequest
-import com.example.armeria.grpc.UpdateBlogPostRequest
 import com.linecorp.armeria.client.grpc.GrpcClients
+import io.grpc.Metadata
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
 import org.slf4j.LoggerFactory
@@ -18,11 +15,11 @@ class BlogClient {
 
     companion object {
         private val logger = LoggerFactory.getLogger(BlogClient::class.java)
-        private val client = GrpcClients.newClient("http://127.0.0.1:8080/", BlogServiceBlockingStub::class.java)
+        private val client = GrpcClients.newClient("http://127.0.0.1:8080/", BlogServiceGrpcKt.BlogServiceCoroutineStub::class.java)
         private val requestCounter = AtomicInteger()
     }
 
-    fun createBlogPost(title: String, content: String) {
+    suspend fun createBlogPost(title: String, content: String) {
         val request = CreateBlogPostRequest.newBuilder()
             .setTitle(title)
             .setContent(content)
@@ -32,10 +29,15 @@ class BlogClient {
         logger.info("${requestCounter.incrementAndGet()}. [Create response] Title: ${response.title}, Content: ${response.content}")
     }
 
-    fun getBlogPost(id: Long) {
+    suspend fun getBlogPost(id: Long) {
+        val headerKey = Metadata.Key.of("test", Metadata.ASCII_STRING_MARSHALLER)
+        val headerValue = "test-value"
+        val header = Metadata().apply {
+            this.put(headerKey, headerValue)
+        }
         try {
             val request = GetBlogPostRequest.newBuilder().setId(id).build()
-            val response = client.getBlogPost(request)
+            val response = client.getBlogPost(request, header)
             logger.info("${requestCounter.incrementAndGet()}. [Get response] Title: ${response.title}, Content: ${response.content}")
         } catch (e: StatusRuntimeException) {
             handleException(e, id)
@@ -43,7 +45,7 @@ class BlogClient {
 
     }
 
-    fun listBlogPosts(descending: Boolean = true) {
+    suspend fun listBlogPosts(descending: Boolean = true) {
         val requestCount = requestCounter.incrementAndGet()
         val request = ListBlogPostsRequest.newBuilder()
             .setDescending(descending)
@@ -55,7 +57,7 @@ class BlogClient {
         }
     }
 
-    fun updateBlogPost(id: Long, title: String, content: String) {
+    suspend fun updateBlogPost(id: Long, title: String, content: String) {
         try {
             val request = UpdateBlogPostRequest.newBuilder()
                 .setId(id)
@@ -71,7 +73,7 @@ class BlogClient {
 
     }
 
-    fun deleteBlogPost(id: Long) {
+    suspend fun deleteBlogPost(id: Long) {
         try {
             val request = DeleteBlogPostRequest.newBuilder()
                 .setId(id)
@@ -93,7 +95,7 @@ class BlogClient {
     }
 }
 
-fun main(args: Array<String>) {
+suspend fun main(args: Array<String>) {
 //    runApplication<ArmeriaApplication>(*args)
     val blogClient = BlogClient()
 

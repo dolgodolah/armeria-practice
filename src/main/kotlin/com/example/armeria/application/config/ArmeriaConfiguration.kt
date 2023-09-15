@@ -11,9 +11,13 @@ import com.linecorp.armeria.server.docs.DocServiceFilter
 import com.linecorp.armeria.server.grpc.GrpcService
 import com.linecorp.armeria.spring.ArmeriaServerConfigurator
 import io.grpc.BindableService
+import io.grpc.Metadata
+import io.grpc.ServerCall
+import io.grpc.kotlin.CoroutineContextServerInterceptor
 import io.grpc.reflection.v1alpha.ServerReflectionGrpc
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import kotlin.coroutines.CoroutineContext
 
 @Configuration
 class ArmeriaConfiguration {
@@ -34,6 +38,7 @@ class ArmeriaConfiguration {
     private fun grpcService(grpcServices: List<BindableService>): GrpcService {
         return GrpcService.builder()
             .addServices(grpcServices)
+            .intercept(ContextInterceptor)
             .enableUnframedRequests(true)
             .jsonMarshallerFactory { GrpcJsonMarshaller.ofGson() }
             .exceptionMapping(GrpcExceptionHandler())
@@ -59,5 +64,18 @@ class ArmeriaConfiguration {
                 "createPost",
                 "{\"title\":\"My first blog\", \"content\":\"Hello Armeria!\"}"
             ).build()
+    }
+}
+
+class TestContext(val value: String) : CoroutineContext.Element {
+    companion object Key : CoroutineContext.Key<TestContext>
+    override val key: CoroutineContext.Key<*>
+        get() = Key
+
+}
+object ContextInterceptor : CoroutineContextServerInterceptor() {
+    override fun coroutineContext(call: ServerCall<*, *>, headers: Metadata): CoroutineContext {
+        val headers = headers.get(Metadata.Key.of("test", Metadata.ASCII_STRING_MARSHALLER)) ?: "default"
+        return TestContext(headers)
     }
 }
